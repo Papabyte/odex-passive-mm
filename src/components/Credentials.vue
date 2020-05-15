@@ -2,10 +2,22 @@
 	<div class="tile is-child">
 		<article class="tile is-child notification is-info">
 			<p class="title is-5">Credentials</p>
-			<b-field label="wif" :message="wif_message">
+			<b-field :message="wif_message">
+				<template slot="label">
+					wif
+					<b-tooltip type="is-dark" label="Private key for your control address, can be generated on https://bonustrack.github.io/obyte-paperwallet/">
+					<b-icon size="is-small" icon="help-circle-outline"></b-icon>
+					</b-tooltip>
+				</template>
 				<b-input @input="onChange" v-model="credentials.wif" type="password" autocomplete="off" :disabled="!is_editing_allowed || are_credentials_saved"></b-input>
 			</b-field>
-			<b-field label="Crypto compare API key" :message="api_key_message">
+			<b-field :message="api_key_message">
+				<template slot="label">
+					Crypto compare API key
+					<b-tooltip type="is-dark" label="Free personal API key from cryptocompare.com">
+					<b-icon size="is-small" icon="help-circle-outline"></b-icon>
+					</b-tooltip>
+				</template>
 				<b-input @input="onChange" v-model="credentials.crypto_compare_api_key" type="password" :disabled="!is_editing_allowed || are_credentials_saved" autocomplete="off"></b-input>
 			</b-field>
 			<b-button class="is-primary" v-if="is_editing_allowed && are_credentials_saved" @click="deleteCredentials">Delete from computer</b-button>				
