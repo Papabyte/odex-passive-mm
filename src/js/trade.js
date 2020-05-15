@@ -65,7 +65,7 @@ async function updateDestBids(new_price) {
 	if (arrBids[0])
 		await cancelOrderAndCheckLater(arrBids[0].hash);
 
-	let size = dest_quote_balance_available * new_price / conf.depth;
+	let size = (dest_quote_balance_available / new_price) / conf.depth;
 
 	for (let i = 0; i < conf.depth; i++){
 		if (arrBids[i + 1])
