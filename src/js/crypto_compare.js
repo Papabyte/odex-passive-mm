@@ -15,81 +15,80 @@ class WsEmitter extends EventEmitter {
 	}
 
 
-	connect(onDone) {
-
-		let self = this;
-		if (!onDone)
-			return new Promise(resolve => this.connect(resolve));
-
-		if (self.ws) {
-			if (self.ws.readyState === self.ws.OPEN) {
-				console.log("crypto compare ws already connected");
-				return onDone();
+	connect() {
+		return new Promise((resolve) => { 
+			let self = this;
+			if (self.ws) {
+				if (self.ws.readyState === self.ws.OPEN) {
+					console.log("crypto compare ws already connected");
+					return resolve();
+				}
+				if (!self.ws.done) {
+					console.log("crypto compare ws already connecting");
+					self.once('done', resolve);
+					return;
+				}
+				console.log("crypto compare closing, will reopen");
 			}
-			if (!self.ws.done) {
-				console.log("crypto compare ws already connecting");
-				self.once('done', onDone);
-				return;
+			console.log("will connect ws to " + conf.crypto_compare_ws_url );
+			self.shouldClose = false;
+
+			self.ws = new WebSocket(conf.crypto_compare_ws_url + '?api_key=' + conf.crypto_compare_api_key);
+
+			self.ws.done = false;
+			function finishConnection(_ws, err) {
+				if (!_ws.done) {
+					_ws.done = true;
+					resolve(err);
+					if (_ws)
+						self.emit('done', err);
+				}
 			}
-			console.log("crypto compare closing, will reopen");
-		}
-		console.log("will connect ws to " + conf.crypto_compare_ws_url );
-		self.shouldClose = false;
 
-		self.ws = new WebSocket(conf.crypto_compare_ws_url + '?api_key=' + conf.crypto_compare_api_key);
+			let abandoned = false;
+			let timeout = setTimeout(function () {
+				abandoned = true;
+				console.log("crypto compare ws abandonned");
+				finishConnection(self.ws, 'timeout');
+				self.ws = null;
+			}, 5000);
 
-		self.ws.done = false;
-		function finishConnection(_ws, err) {
-			if (!_ws.done) {
-				_ws.done = true;
-				onDone(err);
-				if (_ws)
-					self.emit('done', err);
-			}
-		}
+			self.ws.onopen = function onWsOpen() {
+				console.log('crypto compare ws opened');
+				if (!self.ws || abandoned) {
+					console.log("abandoned connection opened, will close");
+					this.close();
+					return;
+				}
+				clearTimeout(timeout);
 
-		let abandoned = false;
-		let timeout = setTimeout(function () {
-			abandoned = true;
-			console.log("crypto compare ws abandonned");
-			finishConnection(self.ws, 'timeout');
-			self.ws = null;
-		}, 5000);
+				self.ws.last_ts = Date.now();
+				console.log('connected');
+				finishConnection(this);
+				self.subscribe();
+				self.emit('connected');
+			};
 
-		self.ws.onopen = function onWsOpen() {
-			console.log('crypto compare ws opened');
-			if (!self.ws || abandoned) {
-				console.log("abandoned connection opened, will close");
-				this.close();
-				return;
-			}
-			clearTimeout(timeout);
+			self.ws.onclose = function onWsClose() {
+				console.log('crypto compare ws closed');
+				clearTimeout(timeout);
+				self.ws = null;
+				if (self.shouldClose)
+					return;
+				setTimeout(self.connect.bind(self), 1000);
+				finishConnection(this, 'closed');
+				self.emit('disconnected');
+			};
 
-			self.ws.last_ts = Date.now();
-			console.log('connected');
-			finishConnection(this);
-			self.subscribe();
-			self.emit('connected');
-		};
+			self.ws.onerror = function onWsError(e) {
+				console.log("on error from crypto compare WS server");
+			};
 
-		self.ws.onclose = function onWsClose() {
-			console.log('crypto compare ws closed');
-			clearTimeout(timeout);
-			self.ws = null;
-			if (self.shouldClose)
-				return;
-			setTimeout(self.connect.bind(self), 1000);
-			finishConnection(this, 'closed');
-			self.emit('disconnected');
-		};
+			self.ws.onmessage = function (message) { // 'this' is set to ws
+				self.onWebsocketMessage(this, message);
+			};
 
-		self.ws.onerror = function onWsError(e) {
-			console.log("on error from crypto compare WS server");
-		};
-
-		self.ws.onmessage = function (message) { // 'this' is set to ws
-			self.onWebsocketMessage(this, message);
-		};
+		});
 	}
 
 
@@ -108,7 +107,15 @@ class WsEmitter extends EventEmitter {
 			return console.log('failed to json.parse message '+message.data);
 		}
 
-		console.log(arrSourceCurrencies)
+		if (objMessage.TYPE > 400 && objMessage.TYPE <= 500){
+			var message = 'Error from cryptocompare: ';
+			if (objMessage.MESSAGE)
+				message+= ' ' + objMessage.MESSAGE + ' ';
+			if (objMessage.INFO)
+				message+= ' ' + objMessage.INFO;	
+			return this.emit('error', message);
+		}
+
 		if (objMessage.TYPE == 5 && objMessage.PRICE){
 
 			var index_0 = arrSourceCurrencies.indexOf(objMessage.FROMSYMBOL)
@@ -139,7 +146,8 @@ class WsEmitter extends EventEmitter {
 
 	close() {
 		this.shouldClose = true;
-		this.ws.close();
+		if (this.ws)
+			this.ws.close();
 	}
 
 	send(message) {

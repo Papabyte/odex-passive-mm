@@ -286,6 +286,10 @@ function start(_conf, _vueEventBus) {
 			bStarted = false;
 			return reject("Coudln't start Odex client: " + e.toString());
 		}
+		if (!await odex.account.isAuthorizationGranted()){
+			bStarted = false;
+			return reject("Control address isn't authorized to trade");
+		}
 
 		try {
 			var pairTokens = await exchange.getTokensByPair(conf.dest_pair);
@@ -305,7 +309,9 @@ function start(_conf, _vueEventBus) {
 		crypto_compare = require('./crypto_compare.js')
 		crypto_compare.connect();
 		crypto_compare.on('new_price', onNewPrice)
-
+		crypto_compare.on('error', function(error){
+			vueEventBus.$emit('error', error)
+		});
 		resolve(pairTokens);
 
 	})
