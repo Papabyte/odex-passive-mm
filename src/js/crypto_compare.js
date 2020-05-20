@@ -183,7 +183,9 @@ class WsEmitter extends EventEmitter {
 		const subs = [];
 
 		arrSourceCurrencies = [conf.currency_0, conf.currency_1];
-		if ( conf.currency_2 &&  conf.currency_2.length > 0)
+		lastPrices = {};
+
+		if (conf.currency_2 &&  conf.currency_2.length > 0)
 			arrSourceCurrencies.push(conf.currency_2);
 
 		for (var i=0; i< arrSourceCurrencies.length -1; i++)
