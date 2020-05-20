@@ -2,7 +2,7 @@
 
 This bot is a browser application that automatically sets buy and/or sell orders on an Odex exchange according to a price provided by cryptocompare API. It's typically used to market a crypto pegged stablecoin at the current fair price including a markup for the bot operator.
 
-![odex-passive-mm](https://raw.githubusercontent.com/Papabyte/odex-passive-mm/master/odex-passive-mm.jpeg)
+![odex-passive-mm](https://raw.githubusercontent.com/Papabyte/odex-passive-mm/master/odex-mm.jpeg)
 
 
 This bot and its source code are offered as is, without any guarantees of its correct operation. The bot might lose money because of bugs, unreliable network connections, and other reasons.

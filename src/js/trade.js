@@ -264,6 +264,16 @@ async function onNewPrice(new_price){
 	lastPrice = new_price;
 }
 
+async function onFirstPrice(new_price){
+	vueEventBus.$emit('first_price', new_price, conf.dest_pair);
+	exports.validateFirstPrice = (price, dest_pair)=>{
+		if (price == new_price && dest_pair == conf.dest_pair){
+			onNewPrice(new_price);
+			crypto_compare.on('new_price', onNewPrice)
+		}
+	}
+}
+
 
 function start(_conf, _vueEventBus) {
 	return new Promise(async (resolve, reject)=>{
@@ -308,7 +318,7 @@ function start(_conf, _vueEventBus) {
 		lastPrice = null;
 		crypto_compare = require('./crypto_compare.js')
 		crypto_compare.connect();
-		crypto_compare.on('new_price', onNewPrice)
+		crypto_compare.once('new_price', onFirstPrice)
 		crypto_compare.on('error', function(error){
 			vueEventBus.$emit('error', error)
 		});

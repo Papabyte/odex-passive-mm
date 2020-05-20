@@ -79,6 +79,17 @@ export default {
 			this.popToast(err, true)
 		})
 
+		EventBus.$on('first_price', (price, dest_pair)=>{
+			this.$buefy.dialog.confirm({
+				message: 'Place orders on <a href="'+ this.connections.odex_http_url.replace('/api', '')+ '/' + dest_pair + '" target="_blank">' 
+				+ dest_pair +'</a> with a base price of ' + price.toPrecision(5)+'?',
+				onConfirm: () => {
+					trade.validateFirstPrice(price, dest_pair)
+				},
+				onCancel: this.stop
+			})
+		})
+
 		window.onbeforeunload = async (event)=>{ // event triggered on browser exit
 			if(this.is_started)
 				await this.stop();
