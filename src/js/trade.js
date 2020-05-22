@@ -15,6 +15,7 @@ let bExiting = false;
 let bStarted = false;
 let vueEventBus;
 let lastPrice;
+let UPDATE_PRICE_THRESHOLD = 0.002;
 
 function getDestOrderByHash(hash) {
 	for (var i=0; i < arrBids.length; i++){
@@ -254,14 +255,16 @@ function refreshDashboardOrdersOnNextick(){ // update orderbook on user dashboar
 
 async function onNewPrice(new_price){
 
-	if (!lastPrice || new_price < lastPrice * 0.999) {
+	if (!lastPrice || new_price < lastPrice * (1 - UPDATE_PRICE_THRESHOLD)) {
 		await updateDestBids(new_price);
 		await updateDestAsk(new_price);
-	} else if (new_price > lastPrice * 1.001){
+		lastPrice = new_price;
+	} else if (new_price > lastPrice * (1 + UPDATE_PRICE_THRESHOLD)){
 		await updateDestAsk(new_price);
 		await updateDestBids(new_price);
+		lastPrice = new_price;
 	}
-	lastPrice = new_price;
+	
 }
 
 async function onFirstPrice(new_price){
