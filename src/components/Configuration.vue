@@ -256,7 +256,6 @@ export default {
 			var data = {
 				grant: 1,
 				address: this.credentials.control_address
-
 			}
 			var json_string = JSON.stringify(data);
 			var base64data = encodeURIComponent(btoa(json_string));

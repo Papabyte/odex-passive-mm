@@ -40,7 +40,7 @@ This bot is available ready to use on [passive-mm.papabyte.com](https://passive-
 
 ## Usage
 
-- Create an account on [cryptocompare.com](https://min-api.cryptocompare.com/),free API key and copy-paste it to bot configuration
+- Create an account on [cryptocompare.com](https://min-api.cryptocompare.com/), get a free API key and copy-paste it to bot configuration
 - Generate a WIF with a [command line tool](https://obytejs.com/utils/generate-wallet) or [online](https://bonustrack.github.io/obyte-paperwallet/) and paste it into the form, the control address that will be used to sign your orders should appear.
 - Log into [Odex](https://odex.ooo) exchange with your Obyte GUI wallet and deposit the currencies you want to trade.
 - Set your Odex account exchange as owner addess then grant your control address the right to trade on Odex account
