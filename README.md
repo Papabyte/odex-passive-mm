@@ -2,7 +2,7 @@
 
 This bot is a browser application that automatically sets buy and/or sell orders on an Odex exchange according to a price provided by cryptocompare API. It's typically used to market a crypto pegged stablecoin at the current fair price including a markup for the bot operator.
 
-![odex-passive-mm](https://raw.githubusercontent.com/Papabyte/odex-passive-mm/master/odex-mm.jpeg)
+![odex-passive-mm](https://raw.githubusercontent.com/byteball/odex-passive-mm/master/odex-mm.jpeg)
 
 
 This bot and its source code are offered as is, without any guarantees of its correct operation. The bot might lose money because of bugs, unreliable network connections, and other reasons.
@@ -14,7 +14,7 @@ The bot can be bundled from source and run from a local webserver. It's recomend
 Install Nodejs in a version from 8 to 10.
 
 ```
-git clone https://github.com/Papabyte/odex-passive-mm.git
+git clone https://github.com/byteball/odex-passive-mm.git
 ``` 
 
 ```
